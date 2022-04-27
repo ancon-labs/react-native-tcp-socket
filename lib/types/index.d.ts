@@ -6,6 +6,7 @@ declare namespace _default {
     export { isIPv6 };
     export { Server };
     export { Socket };
+    export { TcpErrorCode };
 }
 export default _default;
 /**
@@ -39,3 +40,4 @@ declare function isIPv4(input: string): boolean;
 declare function isIPv6(input: string): boolean;
 import Server from "./Server";
 import Socket from "./Socket";
+import { ErrorCode as TcpErrorCode } from "./TcpError";

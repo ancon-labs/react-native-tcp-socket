@@ -5,6 +5,7 @@ import EventEmitter from 'eventemitter3';
 import { Buffer } from 'buffer';
 const Sockets = NativeModules.TcpSockets;
 import { nativeEventEmitter, getNextId } from './Globals';
+import TcpError from './TcpError';
 
 /**
  * @typedef {"ascii" | "utf8" | "utf-8" | "utf16le" | "ucs2" | "ucs-2" | "base64" | "latin1" | "binary" | "hex"} BufferEncoding
@@ -463,7 +464,8 @@ export default class Socket extends EventEmitter {
         this._errorListener = this._eventEmitter.addListener('error', (evt) => {
             if (evt.id !== this._id) return;
             this.destroy();
-            this.emit('error', evt.error);
+            const error = new TcpError(evt.message, evt.code);
+            this.emit('error', error);
         });
         this._closeListener = this._eventEmitter.addListener('close', (evt) => {
             if (evt.id !== this._id) return;

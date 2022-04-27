@@ -228,8 +228,15 @@ RCT_EXPORT_METHOD(resume:(nonnull NSNumber*)cId) {
 
 - (void)onError:(TcpSocketClient*) client withError:(NSError *)err {
     NSString *msg = err.localizedFailureReason ?: err.localizedDescription;
+    NSString *code = [NSString stringWithFormat:@"%ld", (long)err.code];
+
+    if (err) {
+        NSLog(@"error %@", err);
+        NSLog(@"code %@", code);
+    }
+    
     [self sendEventWithName:@"error"
-                       body:@{ @"id": client.id, @"error": msg }];
+                       body:@{ @"id": client.id, @"message": msg, @"code": code }];
     
 }
 
@@ -239,7 +246,7 @@ RCT_EXPORT_METHOD(resume:(nonnull NSNumber*)cId) {
     if (!client) {
         NSString *msg = [NSString stringWithFormat:@"no client found with id %@", cId];
         [self sendEventWithName:@"error"
-                           body:@{ @"id": cId, @"error": msg }];
+                           body:@{ @"id": cId, @"message": msg }];
         
         return nil;
     }

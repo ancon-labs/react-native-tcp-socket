@@ -15,6 +15,7 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -68,7 +69,7 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
             @Override
             public void run() {
                 if (socketMap.get(cId) != null) {
-                    tcpEvtListener.onError(cId, TAG + "createSocket called twice with the same id.");
+                    tcpEvtListener.onError(cId, new Exception("createSocket called twice with the same id."));
                     return;
                 }
                 try {
@@ -80,8 +81,10 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
                     socketMap.put(cId, client);
                     client.connect(mReactContext, host, port, options, currentNetwork.getNetwork());
                     tcpEvtListener.onConnect(cId, client);
+                } catch (ConnectException e) {
+                  tcpEvtListener.onError(cId, e);
                 } catch (Exception e) {
-                    tcpEvtListener.onError(cId, e.getMessage());
+                    tcpEvtListener.onError(cId, e);
                 }
             }
         });
@@ -141,7 +144,7 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
                     socketMap.put(cId, server);
                     tcpEvtListener.onListen(cId, server);
                 } catch (Exception uhe) {
-                    tcpEvtListener.onError(cId, uhe.getMessage());
+                    tcpEvtListener.onError(cId, uhe);
                 }
             }
         });
@@ -154,7 +157,7 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
         try {
             client.setNoDelay(noDelay);
         } catch (IOException e) {
-            tcpEvtListener.onError(cId, e.getMessage());
+            tcpEvtListener.onError(cId, e);
         }
     }
 
@@ -165,7 +168,7 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
         try {
             client.setKeepAlive(enable, initialDelay);
         } catch (IOException e) {
-            tcpEvtListener.onError(cId, e.getMessage());
+            tcpEvtListener.onError(cId, e);
         }
     }
 

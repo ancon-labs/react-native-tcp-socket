@@ -78,7 +78,7 @@ public final class TcpSocketServer extends TcpSocket {
                 serverSocket = null;
             }
         } catch (IOException e) {
-            mReceiverListener.onClose(getId(), e.getMessage());
+            mReceiverListener.onClose(getId(), e);
         }
     }
 
@@ -101,7 +101,7 @@ public final class TcpSocketServer extends TcpSocket {
                 }
             } catch (IOException e) {
                 if (!serverSocket.isClosed()) {
-                    receiverListener.onError(server.getId(), e.getMessage());
+                    receiverListener.onError(server.getId(), e);
                 }
             }
         }

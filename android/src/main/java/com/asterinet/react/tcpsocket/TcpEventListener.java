@@ -7,6 +7,7 @@ import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
+import java.net.ConnectException;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -16,6 +17,8 @@ import java.net.Socket;
 import javax.annotation.Nullable;
 
 public class TcpEventListener {
+
+    private final int ERR_CONNECTION_REFUSED = 0;
 
     private final DeviceEventManagerModule.RCTDeviceEventEmitter rctEvtEmitter;
 
@@ -92,26 +95,35 @@ public class TcpEventListener {
         sendEvent("written", eventParams);
     }
 
-    public void onClose(int id, String error) {
-        if (error != null) {
-            onError(id, error);
+    public void onClose(int id, Exception err) {
+        if (err != null) {
+            onError(id, err);
         }
         WritableMap eventParams = Arguments.createMap();
         eventParams.putInt("id", id);
-        eventParams.putBoolean("hadError", error != null);
+        eventParams.putBoolean("hadError", err != null);
 
         sendEvent("close", eventParams);
     }
 
-    public void onError(int id, String error) {
+    public void onError(int id, Exception err) {
         WritableMap eventParams = Arguments.createMap();
         eventParams.putInt("id", id);
-        eventParams.putString("error", error);
+        eventParams.putString("message", err.getMessage());
+        eventParams.putInt("code", this.getErrorCode(err));
 
         sendEvent("error", eventParams);
     }
 
     private void sendEvent(String eventName, WritableMap params) {
         rctEvtEmitter.emit(eventName, params);
+    }
+
+    private int getErrorCode(Exception err) {
+      if (err instanceof ConnectException) {
+        return ERR_CONNECTION_REFUSED;
+      }
+
+      return 0;
     }
 }

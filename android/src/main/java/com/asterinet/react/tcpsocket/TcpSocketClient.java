@@ -97,7 +97,7 @@ class TcpSocketClient extends TcpSocket {
                     receiverListener.onWritten(getId(), msgId, null);
                 } catch (IOException e) {
                     receiverListener.onWritten(getId(), msgId, e.toString());
-                    receiverListener.onError(getId(), e.toString());
+                    receiverListener.onError(getId(), e);
                 }
             }
         });
@@ -115,7 +115,7 @@ class TcpSocketClient extends TcpSocket {
                 socket = null;
             }
         } catch (IOException e) {
-            receiverListener.onClose(getId(), e.getMessage());
+            receiverListener.onClose(getId(), e);
         }
     }
 
@@ -185,7 +185,7 @@ class TcpSocketClient extends TcpSocket {
                 }
             } catch (IOException | InterruptedException ioe) {
                 if (receiverListener != null && !socket.isClosed()) {
-                    receiverListener.onError(socketId, ioe.getMessage());
+                    receiverListener.onError(socketId, ioe);
                 }
             }
         }
